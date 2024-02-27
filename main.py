@@ -1,4 +1,4 @@
-def elect_next_budget_item(votes, balances, cost):
+def elect_next_budget_item_try(votes, balances, cost):
     # Initialize variables to keep track of the lowest cost item and its supporters
     min_cost_item = None
     min_cost_supporters = set()
@@ -43,13 +43,61 @@ def elect_next_budget_item(votes, balances, cost):
 
 
 
+
+# def check_item(item, votes_list, item_price, balances):
+#     num_of_votes = len(votes_list)
+#     price_per_votes = item_price / num_of_votes
+#     pay_per_vote = [0] * num_of_votes
+#
+#     for vote in votes_list:
+#         if balances[vote] < price_per_votes:
+
+def create_votes_for_item(votes, cost):
+    votes_for_item = {}
+
+    for i, citizen_vote in enumerate(votes):
+        for item in citizen_vote:
+            if item not in votes_for_item:
+                votes_for_item[item] = [i]
+            else:
+                votes_for_item[item].append(i)
+
+    return votes_for_item
+
+
+def elect_next_budget_item(votes, balances, cost):
+    sorted_votes_for_item = dict(sorted(create_votes_for_item(votes, cost).items(), key=lambda item: len(item[1]), reverse=True))
+
+    for item in sorted_votes_for_item:
+        item_price = cost[item]
+        num_of_votes = len(sorted_votes_for_item[item])
+        price_for_one = item_price / num_of_votes
+        price_for_vote = {}
+
+        for vote in sorted_votes_for_item[item]:
+            if balances[vote] >= price_for_one:
+                price_for_vote[vote] = price_for_one
+            else:
+                price_for_vote[vote] = balances[vote]
+                item_price -= balances[vote]
+                num_of_votes -= 1
+                price_for_one = item_price / num_of_votes
+
+
+
+
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # Example usage:
-    votes = [{'Park in street X', 'Park in street Y'}, {'Park in street X'}, {'Park in street Y'}]
+    votes = [{'X', 'Y'}, {'X', 'Z'}, {'Z'}, {'Z'}]
     balances = [2, 1.5, 2]
-    cost = {'Park in street X': 0.5, 'Park in street Y': 1}
+    cost = {'X': 2.6, 'Y': 4, 'Z': 3}
+    # votes_for_item = {'X': [0, 1], 'Y': [0], 'Z': [1, 2]}
 
-    elect_next_budget_item(votes, balances, cost)
 
-# Method-of-Equal-Shares
+    # print(sorted_votes_for_item)
+
+    # elect_next_budget_item(votes, balances, cost)
+
